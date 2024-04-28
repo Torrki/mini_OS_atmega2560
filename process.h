@@ -21,11 +21,9 @@ struct process{
 
 void _create_process(void* f);
 void _prepare_process(struct process *p); //funzione miccia
+void _context_switch(struct context *old, struct context *new);
 void _delete_process(uint8_t pid);
 void _init_timer_process(void);
 void _start_timer_process(void);
 void _stop_timer_process(void);
-#ifdef DEBUG
-void printProcess(uint8_t pid);
-#endif
 

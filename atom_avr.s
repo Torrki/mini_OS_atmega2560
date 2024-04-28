@@ -37,23 +37,22 @@ _context_switch:
 	push r30
 	push r31
 	
-	in r30,0x3d //stack in Z
+	in r30,0x3d 	//stack in Z
 	in r31,0x3e
-	in r27,0x3f //sreg
-	mov r28,r24 //old in Y
+	in r27,0x3f 	//sreg
+	mov r28,r24 	//old in Y
 	mov r29,r25
-	st Y,r30		//modifico old
+	st Y,r30			//modifico old
 	std Y+1,r31
 	std Y+2,r27
-	mov r28,r22 //new in Y
+	mov r28,r22 	//new in Y
 	mov r29,r23
-	ld r30,Y		//sp di new
+	ld r30,Y			//sp di new
 	ldd r31,Y+1
-	ldd r27,Y+2	//sreg di new
-	mov r2,r30
-	mov r3,r31 
-	out 0x3d,r2 //nuovo stack
-	out 0x3e,r3
+	ldd r27,Y+2		//sreg di new
+	out 0x3d,r30 	//nuovo stack
+	out 0x3e,r31
+	out 0x3f,r27	//sreg di new
 	
 	pop r31
 	pop r30
@@ -83,12 +82,10 @@ _context_switch:
 	pop r6
 	pop r5
 	pop r4
-	pop r4
-	pop r4
+	pop r3
+	pop r2
 	pop r1
 	pop r0
-//	out 0x3d,r2 //nuovo stack
-//	out 0x3e,r3
 	ret
 	
 .global _prepare_process
