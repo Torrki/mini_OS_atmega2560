@@ -31,11 +31,11 @@ ISR(INT5_vect){
 }
 
 void _init_syscall_vect(void){
-	//popolare il vettore delle syscall
+/*popolazione vettore delle syscall*/
 	syscall_vect[CREATE_PROCESS]=_create_process;
 	syscall_vect[DELETE_PROCESS]=_delete_process;
 	
-	//abilitazione trap syscall
+/*abilitazione trap delle syscall*/
 	cli();
 	EICRB |= 0x0C;
 	EIMSK |= TRAP_MASK;
@@ -45,7 +45,7 @@ void _init_syscall_vect(void){
 
 void _syscall(uint8_t id, void* args){
 	//r24: id
-	//r23-r22: indirizzo array argomenti
+	//r22-r23: indirizzo array argomenti
 	asm("mov r2,r22\nmov r3,r23\nmov r4,r24\n");
 	PORTE |= TRAP_MASK; //attivazione trap
 	PORTE &= ~TRAP_MASK; //disattivazione per le chiamate successive

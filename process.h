@@ -9,23 +9,19 @@ enum _stato_processo{
 };
 
 struct context{
-	void* pc;
-	uint8_t regs[32];
+	uint16_t sp;
 	uint8_t sreg;
-	uint8_t spl;
-	uint8_t sph;
 };
 
 struct process{
-	void (*func)(void);
+	void *func_addr;
 	uint8_t stato;
 	struct context contesto;
 };
 
 void _create_process(void* f);
-void _start_process(uint8_t pid);
+void _prepare_process(struct process *p); //funzione miccia
 void _delete_process(uint8_t pid);
-void _context_switch(uint8_t oldpid, uint8_t newpid);
 void _init_timer_process(void);
 void _start_timer_process(void);
 void _stop_timer_process(void);

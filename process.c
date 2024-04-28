@@ -18,33 +18,35 @@ ISR(TIMER0_COMPA_vect){
 
 void _create_process(void* f){
 	uint8_t i=0;
-	while(OS_state.procList[i].func != (void*)0x00) i++;
-	OS_state.procList[i].func=f;
-	OS_state.procList[i].stato=STOP;
-	OS_state.procList[i].contesto.pc=f;
+	while(i<MAX_PROC && OS_state.procList[i].func_addr!=(void*)0x00) i++;
+	if(i==MAX_PROC) printf("Abort: no free slot\n");
+	else{
+		OS_state.procList[i].func_addr=f;
+		OS_state.procList[i].stato=RUN;
+		OS_state.procList[i].contesto.sp=0;
+		OS_state.procList[i].contesto.sreg=0;
+		OS_state.num_active_process++;
+		printf("%X\n", f);
+		
+		uint16_t offset=SP-(START_RAM-DIM_STACK_KERNEL);
+		SP -= offset+DIM_PROC*i; //mi sposto nello stack del processo
+		_prepare_process( &(OS_state.procList[i]) );
+		SP += offset+DIM_PROC*i; //torno nello stack del kernel
+	}	
 }
 
 void _delete_process(uint8_t pid){
-	if(OS_state.procList[pid].func == (void*)0x00) printf("Abort: no process in %hhu\n", pid);
+	if(OS_state.procList[pid].func_addr==(void*)0x00) printf("Abort: no process in %hhu\n", pid);
 	else{
-		OS_state.procList[pid].func=(void*)0x00;
+		OS_state.procList[pid].func_addr=(void*)0x00;
 		OS_state.procList[pid].stato=FINISH;
-		OS_state.procList[pid].contesto.pc=(void*)0x00;
+		OS_state.procList[pid].contesto.sp=0;
+		OS_state.procList[pid].contesto.sreg=0;
 	}
 }
 
-void _start_process(uint8_t pid){
-	OS_state.procList[pid].stato=RUN;
-	void (*f)()=OS_state.procList[pid].contesto.pc;
-	//_start_timer_process();
-	f();
-	//_stop_timer_process();
-	OS_state.procList[pid].stato=FINISH;
-}
-
-
 void _init_timer_process(void){
-	//funzione che inizializza il timer per l'uso della CPU per i processi, in avr parte quando s'imposta il prescale
+/*Inizializzazione timer per time slot della CPU per i processi*/
 	cli();
 	TCCR0A &= MASK_TMMODE;
 	TIMSK0 |= MASK_TMI;
@@ -61,8 +63,8 @@ void _stop_timer_process(void){
 
 #ifdef DEBUG
 void printProcess(uint8_t pid){
-	if(OS_state.procList[pid].func == (void*)0x00) printf("Abort: no process in %hhu\n", pid);
-	else printf("func: %p\n", OS_state.procList[pid].func);
+	if(OS_state.procList[pid].func_addr == (void*)0x00) printf("Abort: no process in %hhu\n", pid);
+	else printf("func: %p\nstato: %hhu\n", OS_state.procList[pid].func_addr, OS_state.procList[pid].stato);
 }
 #endif
 
