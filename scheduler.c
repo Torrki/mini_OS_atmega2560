@@ -19,9 +19,8 @@ struct process* _add_process_to_scheduler(void* f, uint8_t *pid){
 	while(i<MAX_PROC && procList[i].func_addr!=(void*)0x00) i++;
 	if(i < MAX_PROC){
 		procList[i].func_addr=f;
-		procList[i].stato=RUN;
+		procList[i].stato=CREATED;
 		procList[i].contesto.sp=0;
-		procList[i].contesto.sreg=0;
 		schedule.active_process++;
 		
 		if(schedule.start_arraylist==BAD_ALLOC) schedule.start_arraylist=0;
@@ -42,7 +41,6 @@ void _remove_process_from_scheduler(uint8_t pid){
 		procList[pid].func_addr=(void*)0x00;
 		procList[pid].stato=FINISH;
 		procList[pid].contesto.sp=0;
-		procList[pid].contesto.sreg=0;
 		schedule.active_process--;
 		
 		if(pid==schedule.start_arraylist){

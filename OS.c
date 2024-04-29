@@ -9,6 +9,7 @@
 
 void somma();
 void diff();
+void mul();
 
 int main(int argc, char *argv[]){
 	_init_OS();
@@ -17,11 +18,9 @@ int main(int argc, char *argv[]){
 	_syscall(CREATE_PROCESS, args);
 	args[0]=&diff;
 	_syscall(CREATE_PROCESS, args);
-	struct process *current=_get_current_process();
-	uint8_t pid;
-	struct process *next=_next_process(&pid);
-	printf("%hhu\n", pid);
-	_context_switch(&(current->contesto), &(next->contesto));
+	args[0]=&mul;
+	_syscall(CREATE_PROCESS, args);
+	_start_OS();
 	return 0;
 }
 
@@ -34,4 +33,10 @@ void diff(){
 	int a=2, b=5;
 	while(1) printf("%d\n", a-b);
 }
+
+void mul(){
+	int a=2, b=5;
+	while(1) printf("%d\n", a*b);
+}
+
 

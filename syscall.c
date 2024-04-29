@@ -27,6 +27,7 @@ ISR(INT5_vect){
 		uint8_t *pid=*args;
 		void (*sys)(uint8_t)=*addr;
 		sys(*pid);
+		printf("Cancellato\n");
 	}
 	else printf("Abort: no syscall\n");
 	asm("pop r24\npop r28\npop r29\npop r24\npop r24");
