@@ -1,4 +1,35 @@
+#include <avr/io.h>
+
 .section .text
+
+.global _get_return
+_get_return:
+//r4:r25 indirizzo address
+	push r28
+	push r29
+	push r30
+	push r31
+	push r17
+	
+	mov r28,r24		//addr in Y
+	mov r29,r25
+	in r30,0x3d		//stack in Z
+	in r31,0x3e
+	ldd r17,Z+8		//scrittura in addr
+	st Y,r17
+	ldd r17,Z+7
+	std Y+1,r17
+	ldd r17,Z+6
+	std Y+2,r17
+	ldi r17,0x00
+	std Y+3,r17
+	
+	pop r17
+	pop r31
+	pop r30
+	pop r29
+	pop r28
+	ret
 
 .global _context_switch
 _context_switch:
@@ -100,28 +131,30 @@ _prepare_process:
 	push r29
 	push r16
 	push r17
+	push r18
 	
-	in r30,0x3d //stack in Z
+	in r30,0x3d 		//stack in Z
 	in r31,0x3e
-	mov r28,r24 //processo in Y
+	mov r28,r24 		//processo in Y
 	mov r29,r25
-	ld r16,Y		//indirizzo funzione
+	ld r16,Y				//indirizzo funzione
 	ldd r17,Y+1
-	std Z+6,r17 //inserimento miccia
-	std Z+7,r16
-//	std Y+3,r16 //in sp del processo
-//	std Y+4,r17
-	adiw r30,0x04
+	ldi r18,0x00
+	std Z+6,r18 		//inserimento miccia
+	std Z+7,r17
+	std Z+8,r16
+	adiw r30,0x05
 	sbiw r30,0x20
-	std Y+3,r30 //in sp del processo
+	std Y+3,r30 		//partenza sp del processo
 	std Y+4,r31
 	adiw r30,0x20
 	
+	pop r18
 	pop r17
 	pop r16
 	pop r29
 	pop r28
-	adiw r30,0x03 //modifica sp per consistenza
+	adiw r30,0x03 	//salto indirizzo funzione
 	out 0x3d,r30
 	out 0x3e,r31
 	ret

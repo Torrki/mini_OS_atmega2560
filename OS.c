@@ -1,4 +1,5 @@
 #include "syscall.h"
+#include "core.h"
 #ifdef DEBUG
 #include "scheduler.h"
 #include <avr/io.h>
@@ -12,12 +13,15 @@ void diff();
 int main(int argc, char *argv[]){
 	_init_OS();
 	printf_init();
-	_syscall(CREATE_PROCESS, &somma);
-	_syscall(CREATE_PROCESS, &diff);
-	uint8_t next_pid;
-	struct process *proc=_get_current_process();
-	struct process *next=_next_process(&next_pid);
-	_context_switch( &(proc->contesto), &(next->contesto) );
+	void* args[]={&somma};
+	_syscall(CREATE_PROCESS, args);
+	args[0]=&diff;
+	_syscall(CREATE_PROCESS, args);
+	struct process *current=_get_current_process();
+	uint8_t pid;
+	struct process *next=_next_process(&pid);
+	printf("%hhu\n", pid);
+	_context_switch(&(current->contesto), &(next->contesto));
 	return 0;
 }
 

@@ -20,7 +20,6 @@ void _create_process(void* f){
 	struct process *proc=_add_process_to_scheduler(f,&pid);
 	if(proc==(void*)0x00) printf("Abort: no free slot\n");
 	else{
-		printf("%p\n", f);
 		uint16_t offset=SP-(START_RAM-DIM_STACK_KERNEL);
 		SP -= offset+DIM_PROC*pid; 	//mi sposto nello stack del processo
 		_prepare_process(proc);
@@ -32,7 +31,7 @@ void _delete_process(uint8_t pid){
 	_remove_process_from_scheduler(pid);
 }
 
-void _init_timer_process(void){
+void _init_timer_process(){
 /*Inizializzazione timer per time slot della CPU per i processi*/
 	cli();
 	TCCR0A &= MASK_TMMODE;
@@ -40,11 +39,11 @@ void _init_timer_process(void){
 	sei();
 }
 
-void _start_timer_process(void){
+void _start_timer_process(){
 	TCCR0B |= MASK_TMPS;
 }
 
-void _stop_timer_process(void){
+void _stop_timer_process(){
 	TCCR0B &= 0x00;
 }
 

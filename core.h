@@ -5,5 +5,6 @@
 #define DIM_STACK_KERNEL 250
 #define START_RAM 0x2200
 
-void _init_OS(void);
+void _init_OS();													//funzione inizializzazione OS
+void _get_return(uint32_t *addr);					//funzione asm per ottenere l'indirizzo di ritorno
 
