@@ -18,5 +18,6 @@ void _remove_process_from_scheduler(uint8_t pid);												//funzione per rimu
 struct process* _next_process(uint8_t *pid);														//funzione per ottenere il processo successivo
 struct process* _get_current_process();																	//funzione per ottenere il processo corrente
 uint8_t _get_current_pid();																							//funzione per ottenere il pid corrente
+uint8_t _get_active_process();																					//funzione per ottenere il numero dei processi attivi
 void _set_current_pid(uint8_t p);																				//funzione per modificare il pid corrente
 

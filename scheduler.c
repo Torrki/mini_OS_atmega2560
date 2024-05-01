@@ -4,13 +4,13 @@
 #endif
 
 struct process procList[MAX_PROC];
-struct _simple_scheduler schedule;
+struct _simple_scheduler scheduler;
 
 void _init_scheduler(){
-	schedule.current_pid=0;
-	schedule.active_process=0;
-	schedule.start_arraylist=BAD_ALLOC;
-	for(int i=0; i<MAX_PROC; i++) schedule.arrayListProc[i]=BAD_ALLOC;
+	scheduler.current_pid=0;
+	scheduler.active_process=0;
+	scheduler.start_arraylist=BAD_ALLOC;
+	for(int i=0; i<MAX_PROC; i++) scheduler.arrayListProc[i]=BAD_ALLOC;
 }
 
 struct process* _add_process_to_scheduler(void* f, uint8_t *pid){
@@ -21,13 +21,13 @@ struct process* _add_process_to_scheduler(void* f, uint8_t *pid){
 		procList[i].func_addr=f;
 		procList[i].stato=CREATED;
 		procList[i].contesto.sp=0;
-		schedule.active_process++;
+		scheduler.active_process++;
 		
-		if(schedule.start_arraylist==BAD_ALLOC) schedule.start_arraylist=0;
+		if(scheduler.start_arraylist==BAD_ALLOC) scheduler.start_arraylist=0;
 		else{
-			uint8_t idx=schedule.start_arraylist;
-			while(schedule.arrayListProc[idx] != BAD_ALLOC) idx=schedule.arrayListProc[idx];
-			schedule.arrayListProc[idx]=idx+1;
+			uint8_t idx=scheduler.start_arraylist;
+			while(scheduler.arrayListProc[idx] != BAD_ALLOC) idx=scheduler.arrayListProc[idx];
+			scheduler.arrayListProc[idx]=idx+1;
 		}
 		*pid=i;
 		p=&procList[i];
@@ -40,37 +40,41 @@ void _remove_process_from_scheduler(uint8_t pid){
 	else{
 		procList[pid].func_addr=(void*)0x00;
 		procList[pid].stato=FINISH;
-		procList[pid].contesto.sp=0;
-		schedule.active_process--;
+		procList[pid].contesto.sp=0x00;
+		scheduler.active_process--;
 		
-		if(pid==schedule.start_arraylist){
-			schedule.start_arraylist=schedule.arrayListProc[pid];
-			schedule.arrayListProc[pid]=BAD_ALLOC;
+		if(pid==scheduler.start_arraylist){
+			scheduler.start_arraylist=scheduler.arrayListProc[pid];
+			scheduler.arrayListProc[pid]=BAD_ALLOC;
 		}
 		else{
-			uint8_t idx=schedule.start_arraylist;
-			while(schedule.arrayListProc[idx] != pid) idx=schedule.arrayListProc[idx];
-			schedule.arrayListProc[idx]=schedule.arrayListProc[pid];
-			schedule.arrayListProc[pid]=BAD_ALLOC;
+			uint8_t idx=scheduler.start_arraylist;
+			while(scheduler.arrayListProc[idx] != pid) idx=scheduler.arrayListProc[idx];
+			scheduler.arrayListProc[idx]=scheduler.arrayListProc[pid];
+			scheduler.arrayListProc[pid]=BAD_ALLOC;
 		}
 	}
 }
 
 struct process* _next_process(uint8_t *pid){
-	uint8_t next = schedule.arrayListProc[schedule.current_pid]==BAD_ALLOC ? schedule.start_arraylist : schedule.arrayListProc[schedule.current_pid];
+	uint8_t next = scheduler.arrayListProc[scheduler.current_pid]==BAD_ALLOC ? scheduler.start_arraylist : scheduler.arrayListProc[scheduler.current_pid];
 	*pid=next;
 	return &(procList[next]);
 }
 
 struct process* _get_current_process(){
-	return &(procList[schedule.current_pid]);
+	return &(procList[scheduler.current_pid]);
 }
 
 uint8_t _get_current_pid(){
-	return schedule.current_pid;
+	return scheduler.current_pid;
 }
 
 void _set_current_pid(uint8_t p){
-	schedule.current_pid=p;
+	scheduler.current_pid=p;
+}
+
+uint8_t _get_active_process(){
+	return scheduler.active_process;
 }
 

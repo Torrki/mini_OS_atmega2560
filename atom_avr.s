@@ -2,6 +2,68 @@
 
 .section .text
 
+.global _end_switch
+_end_switch:
+//r24:r25 indirizzo new
+	mov r28,r24 	//new in Y
+	mov r29,r25
+	ld r30,Y+			//sp di new
+	ld r31,Y
+	out 0x3d,r30 	//nuovo stack
+	out 0x3e,r31
+	
+	pop r2
+	out 0x3c,r2
+	pop r2
+	out 0x3b,r2
+	pop r2
+	out 0x3f,r2
+//	pop r31
+//	pop r30
+//	pop r29
+//	pop r28
+//	pop r27
+//	pop r26
+//	pop r25
+//	pop r24
+//	pop r23
+//	pop r22
+//	pop r21
+//	pop r20
+//	pop r19
+//	pop r18
+//	pop r17
+//	pop r16
+//	pop r15
+//	pop r14
+//	pop r13
+//	pop r12
+	pop r11
+	pop r10
+	pop r9
+	pop r8
+	pop r7
+	pop r6
+	pop r5
+	pop r4
+	pop r3
+	pop r2
+//	pop r1
+//	pop r0
+	ret
+
+.global _end_first_switch
+_end_first_switch:
+//r24:r25 indirizzo new
+	mov r28,r24 	//new in Y
+	mov r29,r25
+	ld r30,Y+			//sp di new
+	ld r31,Y
+	out 0x3d,r30 	//nuovo stack
+	out 0x3e,r31
+	
+	reti
+
 .global _get_return
 _get_return:
 //r4:r25 indirizzo address
@@ -35,7 +97,7 @@ _get_return:
 _first_switch:
 //r22:r23 indirizzo new
 //r24:r25 indirizzo old
-//push ISR: r1,r0,r0,r0,r14-r27,r30,r31,r28,r29,r1
+//push ISR: r1,r0,r0,r0,r12-r27,r30,r31,r28,r29,r1
 /*memorizzo general purpuse*/
 //	push r0
 //	push r1
@@ -49,8 +111,8 @@ _first_switch:
 	push r9
 	push r10
 	push r11
-	push r12
-	push r13
+//	push r12
+//	push r13
 //	push r14
 //	push r15
 //	push r16
@@ -110,8 +172,8 @@ _context_switch:
 	push r9
 	push r10
 	push r11
-	push r12
-	push r13
+//	push r12
+//	push r13
 //	push r14
 //	push r15
 //	push r16
@@ -175,8 +237,8 @@ _context_switch:
 //	pop r16
 //	pop r15
 //	pop r14
-	pop r13
-	pop r12
+//	pop r13
+//	pop r12
 	pop r11
 	pop r10
 	pop r9

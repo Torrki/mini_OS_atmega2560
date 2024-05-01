@@ -11,23 +11,22 @@
 void* syscall_vect[SYSCALL_VECT];
 
 ISR(INT5_vect){
-	asm("push r24\npush r24\npush r29\npush r28\npush r24"); //allocazione spazio per le variabili
-	uint8_t *id=SP+1;							//id syscall
-	void* *args_sp=SP+2;					//riprendo gli argomenti
+	//allocazione spazio per le variabili
+	asm("push r24\npush r24\npush r29\npush r28\npush r24");
+	uint8_t *id=SP+1;								//id syscall
+	void* *args_sp=SP+2;						//riprendo gli argomenti
 	void* *args= (*args_sp)+1;
-	void* *addr=SP+4;							//prendo l'indirizzo della syscall
+	void* *addr=SP+4;								//prendo l'indirizzo della syscall
 	*addr=syscall_vect[*id];
 	if((*id & ~CREATE_PROCESS)==0){
 		void* start=*args;
 		void (*sys)(void*)=*addr;
 		sys(start);
-		printf("Creato\n");
 	}
 	else if((*id & ~DELETE_PROCESS)==0){
 		uint8_t *pid=*args;
 		void (*sys)(uint8_t)=*addr;
 		sys(*pid);
-		printf("Cancellato\n");
 	}
 	else printf("Abort: no syscall\n");
 	asm("pop r24\npop r28\npop r29\npop r24\npop r24");
