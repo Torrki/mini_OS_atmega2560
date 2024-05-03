@@ -1,8 +1,8 @@
 #define SCHEDULER_H
+
 #include <stdint.h>
 #include "process.h"
 
-#define MAX_PROC 10
 #define BAD_ALLOC -1
 
 struct _simple_scheduler{

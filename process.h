@@ -1,5 +1,7 @@
 #pragma once
+
 #define PROCESS_H
+#define MAX_PROC 15
 #include <stdint.h>
 
 enum _stato_processo{

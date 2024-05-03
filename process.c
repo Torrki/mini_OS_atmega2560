@@ -1,7 +1,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "scheduler.h"
 #include "process.h"
+#include "scheduler.h"
+#include "memory.h"
 #include "core.h"
 
 #ifdef DEBUG
@@ -34,8 +35,10 @@ void _create_process(void* f){
 	struct process *proc=_add_process_to_scheduler(f,&pid);
 	if(proc==(void*)0x00) printf("Abort: no free slot\n");
 	else{
-		uint16_t offset=SP-(START_RAM-DIM_STACK_KERNEL), addr_f=f, addr_end=_end_process;
-		SP -= offset+DIM_PROC*pid; 				//mi sposto nello stack del processo
+		uint16_t offset=SP-(START_RAM-DIM_PAGE), addr_f=f, addr_end=_end_process;
+		_lock_page(pid+1);
+		
+		SP -= offset+DIM_PAGE*pid; 				//mi sposto nello stack del processo
 		uint8_t *sp=SP;										//scrivo la miccia
 		uint8_t bl= addr_end&0x00ff;			//byte basso
 		uint8_t bh= addr_end>>8;					//byte alto
@@ -48,12 +51,13 @@ void _create_process(void* f){
 		*(sp-4)=bh;
 		*(sp-5)=0x00;
 		proc->contesto.sp=sp-6;
-		SP += offset+DIM_PROC*pid; 				//torno nello stack del kernel
+		SP += offset+DIM_PAGE*pid; 				//torno nello stack del kernel
 	}	
 }
 
 void _delete_process(uint8_t pid){
 	_remove_process_from_scheduler(pid);
+	_unlock_page(pid+1);
 }
 
 void _init_timer_process(){
