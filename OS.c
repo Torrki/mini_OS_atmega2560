@@ -3,6 +3,7 @@
 #include "avr_common/uart.h"
 #include <stdio.h>
 #ifdef DEBUG
+#include "scheduler.h"
 #endif
 
 void somma();
@@ -12,19 +13,25 @@ void mul();
 int main(int argc, char *argv[]){
 	_init_OS();
 	printf_init();
-	void* args[]={&mul};
-	_syscall(CREATE_PROCESS, args);
-	args[0]=&somma;
+	
+	void* args[]={&somma};
+	uint8_t i[]={1};
+	
 	_syscall(CREATE_PROCESS, args);
 	args[0]=&diff;
 	_syscall(CREATE_PROCESS, args);
+	args[0]=&mul;
+	_syscall(CREATE_PROCESS, args);
+	args[0]=&somma;
+	_syscall(CREATE_PROCESS, args);
+	
 	_start_OS();
 	return 0;
 }
 
 void somma(){
 	int a=2, b=5;
-	printf("%d\n", a+b);
+	while(1) printf("%d\n", a+b);
 }
 
 void diff(){

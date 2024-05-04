@@ -7,36 +7,22 @@
 #endif
 
 #define TRAP_MASK 0x20
-
-void* syscall_vect[SYSCALL_VECT];
+uint8_t __id_syscall;
+void* __args_syscall;
 
 ISR(INT5_vect){
-	//allocazione spazio per le variabili
-	asm("push r24\npush r24\npush r29\npush r28\npush r24");
-	uint8_t *id=SP+1;								//id syscall
-	void* *args_sp=SP+2;						//riprendo gli argomenti
-	void* *args= (*args_sp)+1;
-	void* *addr=SP+4;								//prendo l'indirizzo della syscall
-	*addr=syscall_vect[*id];
-	if((*id & ~CREATE_PROCESS)==0){
-		void* start=*args;
-		void (*sys)(void*)=*addr;
-		sys(start);
+	if((__id_syscall & ~CREATE_PROCESS)==0){
+		void* start=*((void**)__args_syscall);
+		_create_process(start);
 	}
-	else if((*id & ~DELETE_PROCESS)==0){
-		uint8_t *pid=*args;
-		void (*sys)(uint8_t)=*addr;
-		sys(*pid);
+	else if((__id_syscall & ~DELETE_PROCESS)==0){
+		uint8_t pid= *((uint8_t*)__args_syscall);
+		_delete_process(pid);
 	}
 	else printf("Abort: no syscall\n");
-	asm("pop r24\npop r28\npop r29\npop r24\npop r24");
 }
 
-void _init_syscall_vect(){
-/*popolazione vettore delle syscall*/
-	syscall_vect[CREATE_PROCESS]=_create_process;
-	syscall_vect[DELETE_PROCESS]=_delete_process;
-	
+void _init_syscall(){	
 /*abilitazione trap delle syscall*/
 	cli();
 	EICRB |= 0x0C;
@@ -46,8 +32,8 @@ void _init_syscall_vect(){
 }
 
 void _syscall(uint8_t id, void* args){
-	//r24	: id
-	//Y+1	: indirizzo args
+	__id_syscall=id;
+	__args_syscall=args;
 	PORTE |= TRAP_MASK; 			//attivazione trap
 	PORTE &= ~TRAP_MASK; 			//disattivazione per le chiamate successive
 }

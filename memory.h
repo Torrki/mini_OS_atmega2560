@@ -1,5 +1,3 @@
-#pragma once
-
 #define NPAGES 16
 #define DIM_STACK_PROC 200
 #define DIM_STACK_KERNEL 150

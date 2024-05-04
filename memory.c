@@ -26,11 +26,9 @@ void* _get_page(uint8_t k){
 
 void _lock_page(uint8_t k){
 	lockbits |= 1<<k;
-	printf("%04X\n", lockbits);
 }
 
 void _unlock_page(uint8_t k){
 	lockbits &= ~(1<<k);
-	printf("%04X\n", lockbits);
 }
 
