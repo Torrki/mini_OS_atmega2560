@@ -41,7 +41,7 @@ Torna un indirizzo valido se corretto, altrimenti NULL.
 	procList[new_pid].stato=CREATED;
 	procList[new_pid].page=new_pid+1;
 	procList[new_pid].contesto.sp=START_RAM-(DIM_PAGE*(new_pid+1)+6);
-	*pid=new_pid;
+	procList[new_pid].heap_alloc=(uint32_t)0;
 	return &(procList[new_pid]);
 }
 
@@ -72,6 +72,7 @@ Torna 0 se corretto, altrimenti -1.
 	procList[pid].stato=FINISH;
 	procList[pid].page=0;
 	procList[pid].contesto.sp=0;
+	procList[pid].heap_alloc=(uint32_t)0;
 	return 0;
 }
 

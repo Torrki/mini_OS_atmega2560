@@ -38,3 +38,11 @@ void _syscall(uint8_t id, void* args){
 	PORTE &= ~TRAP_MASK; 			//disattivazione per le chiamate successive
 }
 
+void* malloc(uint32_t size){
+	return _malloc(size);
+}
+
+void free(void* addr){
+	_free(addr);
+}
+

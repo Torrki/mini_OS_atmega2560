@@ -9,6 +9,7 @@
 void somma();
 void diff();
 void mul();
+char* stampa(char* str);
 
 int main(int argc, char *argv[]){
 	_init_OS();
@@ -31,6 +32,10 @@ int main(int argc, char *argv[]){
 
 void somma(){
 	int a=2, b=5;
+	char* addr_1=(char*)malloc(40);
+	printf("%X\n", addr_1);
+	addr_1="Ciao malloc";
+	printf("%s\n", stampa(addr_1));
 	while(1) printf("%d\n", a+b);
 }
 
@@ -42,5 +47,12 @@ void diff(){
 void mul(){
 	int a=2, b=5;
 	while(1) printf("%d\n", a*b);
+}
+
+char* stampa(char* str){
+	printf("%s\n", str);
+	char *risposta=(char*)malloc(20);
+	risposta="Salve main";
+	return risposta;
 }
 

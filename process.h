@@ -20,6 +20,7 @@ struct process{
 	uint8_t stato;
 	uint8_t page;
 	struct context contesto;
+	uint32_t heap_alloc;
 };
 
 void _context_switch(struct context *old, struct context *new);
@@ -33,4 +34,6 @@ void _reset_timer_process();
 int _create_process(void* f);
 int _delete_process(uint8_t pid);
 void _end_process();
+void* _malloc(uint32_t size);
+void _free(void* addr);
 

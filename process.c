@@ -85,6 +85,29 @@ void _end_process(){
 	sw(&(next->contesto));
 }
 
+void* _malloc(uint32_t size){
+	struct process *current=_get_current_process();
+	if(current->heap_alloc==0x00ffffff) return (void*)0x00; //out of memory
+	else{
+		uint8_t temp=current->heap_alloc, i=0;
+		while(temp > 0) {
+			temp >>= 1;
+			i++;
+		}
+		for(int k=0; k <= size/((uint32_t)MIN_HEAP_UNIT); k++) current->heap_alloc |= ((uint32_t)1)<<(i+k);
+		printf("heap: %08X\n", current->heap_alloc);
+		return START_RAM-(DIM_PAGE*(current->page)+DIM_STACK_PROC+MIN_HEAP_UNIT*(N_UNIT_HEAP-i))+1;
+	}
+}
+
+void _free(void* addr){
+	struct process *current=_get_current_process();
+	uint16_t addr_norm= START_RAM-(DIM_PAGE*(current->page)+DIM_STACK_PROC)-(uint16_t)addr;
+	uint8_t k=addr_norm/MIN_HEAP_UNIT;
+	
+	current->heap_alloc &= ~( ((uint32_t)1)<<(N_UNIT_HEAP-k-1) );
+}
+
 void _init_timer_process(){
 /*Inizializzazione timer per time slot della CPU per i processi*/
 	cli();
