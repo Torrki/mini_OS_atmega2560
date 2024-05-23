@@ -15,7 +15,7 @@
 ISR(TIMER0_COMPA_vect){
 	//switch contesto
 	_stop_timer_process();
-	uint8_t next_pid;
+	pid_t next_pid;
 	struct process *current=_get_current_process();
 	struct process *next=_next_process(&next_pid);
 	void (*sw)(struct context*, struct context*);
@@ -36,10 +36,11 @@ int _create_process(void* f){
 Funzione che crea un nuovo processo in memoria e lo inizializza per il context switch.
 Torna 0 se è stato eseguito correttamente, altrimenti -1.
 */
-	uint8_t new_pid=0;
+	pid_t new_pid=0;	
 	struct process *proc=_add_process_to_scheduler(f, &new_pid);
-	_lock_page(proc->page);
 	if(proc==(void*)0x00) return -1;
+	
+	_lock_page(proc->page);
 	uint8_t *sp=proc->contesto.sp;
 	
 	uint16_t addr_f=f, addr_end=_end_process;						//scrittura miccia
@@ -56,11 +57,13 @@ Torna 0 se è stato eseguito correttamente, altrimenti -1.
 	return 0;
 }
 
-int _delete_process(uint8_t pid){
+int _delete_process(pid_t pid){
 /*
 Funzione che elimina un processo e lo rimuove dallo scheduler.
 Torna 0 se corretto, altrimenti -1.
 */
+	struct process *p=_get_process(pid);
+	_unlock_page(p->page);
 	if(_remove_process_from_scheduler(pid)==-1) return -1;
 	return 0;
 }
@@ -69,10 +72,8 @@ void _end_process(){
 	cli();
 	_stop_timer_process();
 	_reset_timer_process();
-	uint8_t cpid=_get_current_pid(), next_pid;
+	pid_t cpid=_get_current_pid(), next_pid;
 	struct process *next=_next_process(&next_pid);
-	struct process *current=_get_current_process();
-	_unlock_page(current->page);
 	void (*sw)(struct context*);
 	
 	_delete_process(cpid);

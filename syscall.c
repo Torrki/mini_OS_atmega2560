@@ -9,6 +9,7 @@
 #define TRAP_MASK 0x20
 uint8_t __id_syscall;
 void* __args_syscall;
+void* __ret_syscall;
 
 ISR(INT5_vect){
 	if((__id_syscall & ~CREATE_PROCESS)==0){
@@ -16,7 +17,7 @@ ISR(INT5_vect){
 		_create_process(start);
 	}
 	else if((__id_syscall & ~DELETE_PROCESS)==0){
-		uint8_t pid= *((uint8_t*)__args_syscall);
+		pid_t pid= *((pid_t*)__args_syscall);
 		_delete_process(pid);
 	}
 	else printf("Abort: no syscall\n");
@@ -31,9 +32,12 @@ void _init_syscall(){
 	sei();
 }
 
-void _syscall(uint8_t id, void* args){
+void _syscall(uint8_t id, void* args, void* ret){
+/*Interfaccia per le syscall, se non tornano dei risultati ret può essere NULL*/
 	__id_syscall=id;
 	__args_syscall=args;
+	__ret_syscall=ret;
+	
 	PORTE |= TRAP_MASK; 			//attivazione trap
 	PORTE &= ~TRAP_MASK; 			//disattivazione per le chiamate successive
 }

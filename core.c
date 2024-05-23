@@ -13,7 +13,10 @@ void _init_OS(){
 
 void _start_OS(){
 	struct process* proc0=_get_current_process();
-	SP=proc0->contesto.sp;
-	_start_timer_process();
+	
+	if(proc0 != (void*)0x00){
+		SP=proc0->contesto.sp;
+		_start_timer_process();
+	}
 }
 

@@ -23,16 +23,19 @@ struct process{
 	uint32_t heap_alloc;
 };
 
+typedef int8_t pid_t;
+
 void _context_switch(struct context *old, struct context *new);
 void _first_switch(struct context *old, struct context *new);
 void _end_first_switch(struct context *new);
 void _end_switch(struct context *new);
+void _init_timer_process();
 void _start_timer_process();
 void _stop_timer_process();
 void _reset_timer_process();
 
 int _create_process(void* f);
-int _delete_process(uint8_t pid);
+int _delete_process(pid_t pid);
 void _end_process();
 void* _malloc(uint32_t size);
 void _free(void* addr);

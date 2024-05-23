@@ -8,9 +8,14 @@
 #define MIN_HEAP_UNIT (DIM_PAGE-DIM_STACK_PROC)/N_UNIT_HEAP
 #include <stdint.h>
 
-void _init_memory();
-void print_memory();
-void* _get_page(uint8_t k);
-void _lock_page(uint8_t k);
-void _unlock_page(uint8_t k);
+typedef int page_t;
 
+void _init_memory();
+void* _get_page(page_t page);
+void _lock_page(page_t page);
+void _unlock_page(page_t page);
+void _request_page(page_t *page);
+#ifdef DEBUG
+void print_lockbits();
+void print_memory();
+#endif
