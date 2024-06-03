@@ -8,7 +8,7 @@ void* memoria[NPAGES];
 uint16_t lockbits;
 
 void _init_memory(){
-	lockbits=0x0001;	//blocco la pagina per il kernel
+	lockbits=0x0003;	//blocco le pagine per il kernel
 	for(uint8_t i=0; i<NPAGES; i++){
 		memoria[i]=START_RAM-DIM_PAGE*i;
 	}

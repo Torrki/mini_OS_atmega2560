@@ -1,6 +1,6 @@
 #define NPAGES 16
 #define DIM_STACK_PROC 200
-#define DIM_STACK_KERNEL 150
+#define DIM_STACK_KERNEL 250
 #define START_RAM 0x2200
 #define END_RAM 0x0200
 #define DIM_PAGE (START_RAM-END_RAM)/NPAGES
@@ -9,6 +9,11 @@
 #include <stdint.h>
 
 typedef int page_t;
+
+struct heap_block{
+	uint8_t size;
+	void* address;
+};
 
 void _init_memory();
 void* _get_page(page_t page);
@@ -19,3 +24,4 @@ void _request_page(page_t *page);
 void print_lockbits();
 void print_memory();
 #endif
+

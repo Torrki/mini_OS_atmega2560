@@ -20,7 +20,6 @@ struct process{
 	uint8_t stato;
 	uint8_t page;
 	struct context contesto;
-	uint32_t heap_alloc;
 };
 
 typedef int8_t pid_t;
@@ -37,6 +36,4 @@ void _reset_timer_process();
 int _create_process(void* f);
 int _delete_process(pid_t pid);
 void _end_process();
-void* _malloc(uint32_t size);
-void _free(void* addr);
 

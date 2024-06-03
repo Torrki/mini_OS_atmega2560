@@ -2,6 +2,8 @@
 #include <avr/io.h>
 #include "syscall.h"
 #include "process.h"
+#include "memory.h"
+#include "kernel.h"
 #ifdef DEBUG
 #include <stdio.h>
 #endif
@@ -10,8 +12,19 @@
 uint8_t __id_syscall;
 void* __args_syscall;
 void* __ret_syscall;
+void* SP_CALLING_PROCESS;
+
+extern struct kernel_structure kernel;
 
 ISR(INT5_vect){
+/*Interrupt delle syscall*/
+//Se non sono nello stack del kernel, ci vado
+
+	if(SP < START_RAM-DIM_STACK_KERNEL){
+		SP_CALLING_PROCESS=SP;
+		SP=kernel.last_sp;
+	}
+	
 	if((__id_syscall & ~CREATE_PROCESS)==0){
 		void* start=*((void**)__args_syscall);
 		_create_process(start);
@@ -21,6 +34,11 @@ ISR(INT5_vect){
 		_delete_process(pid);
 	}
 	else printf("Abort: no syscall\n");
+	
+	if(SP_CALLING_PROCESS != (void*)0x00)
+		SP=SP_CALLING_PROCESS;
+		
+	SP_CALLING_PROCESS=(void*)0x00;
 }
 
 void _init_syscall(){	
@@ -40,13 +58,5 @@ void _syscall(uint8_t id, void* args, void* ret){
 	
 	PORTE |= TRAP_MASK; 			//attivazione trap
 	PORTE &= ~TRAP_MASK; 			//disattivazione per le chiamate successive
-}
-
-void* malloc(uint32_t size){
-	return _malloc(size);
-}
-
-void free(void* addr){
-	_free(addr);
 }
 

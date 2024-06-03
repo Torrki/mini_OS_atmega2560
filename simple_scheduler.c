@@ -1,13 +1,12 @@
-#include "scheduler.h"
+#include "simple_scheduler.h"
 #include "memory.h"
 
 #ifdef DEBUG
 #include <stdio.h>
 #endif
 
-struct process procList[MAX_PROC];
-typedef struct _simple_scheduler scheduler;
-scheduler s;
+extern struct kernel_structure kernel;
+struct _simple_scheduler s;
 
 void _init_scheduler(){
 	s.start_arraylist=CODA;
@@ -15,7 +14,7 @@ void _init_scheduler(){
 	for(uint8_t i=0; i<MAX_PROC; i++) s.proc_arraylist[i]=BAD_ALLOC;
 }
 
-void* _add_process_to_scheduler(void *f, pid_t *pid){
+struct process* _add_process_to_scheduler(void *f, pid_t *pid){
 /*
 Aggiunge un nuovo PID nello scheduler s.
 Torna un indirizzo valido se corretto, altrimenti NULL.
@@ -43,12 +42,11 @@ Torna un indirizzo valido se corretto, altrimenti NULL.
 			s.proc_arraylist[i]=CODA;
 			new_pid=i;
 		}
-		procList[new_pid].func_addr=f;
-		procList[new_pid].stato=CREATED;
-		procList[new_pid].page=process_page;
-		procList[new_pid].contesto.sp=START_RAM-(DIM_PAGE*(process_page)+6);
-		procList[new_pid].heap_alloc=(uint32_t)0;
-		return &(procList[new_pid]);
+		kernel.procList[new_pid].func_addr=f;
+		kernel.procList[new_pid].stato=CREATED;
+		kernel.procList[new_pid].page=process_page;
+		kernel.procList[new_pid].contesto.sp=START_RAM-(DIM_PAGE*(process_page)+6);
+		return &(kernel.procList[new_pid]);
 	}else return (void*)0x00;
 }
 
@@ -75,27 +73,26 @@ Torna 0 se corretto, altrimenti -1.
 		s.proc_arraylist[pid]=BAD_ALLOC;
 	}
 	
-	procList[pid].func_addr=(void*)0x00;
-	procList[pid].stato=FINISH;
-	procList[pid].page=0;
-	procList[pid].contesto.sp=0;
-	procList[pid].heap_alloc=(uint32_t)0;
+	kernel.procList[pid].func_addr=(void*)0x00;
+	kernel.procList[pid].stato=FINISH;
+	kernel.procList[pid].page=0;
+	kernel.procList[pid].contesto.sp=0;
 	return 0;
 }
 
 struct process* _get_current_process(){
 	if(s.current_pid==BAD_ALLOC) return (void*)0x00;
-	return &(procList[s.current_pid]);
+	return &(kernel.procList[s.current_pid]);
 }
 
 struct process* _get_process(pid_t pid){
-	return &(procList[pid]);
+	return &(kernel.procList[pid]);
 }
 
 struct process* _next_process(pid_t *pid){
 	pid_t next_pid=s.proc_arraylist[s.current_pid]==CODA ? s.start_arraylist : s.proc_arraylist[s.current_pid];
 	*pid=next_pid;
-	return &(procList[next_pid]);
+	return &(kernel.procList[next_pid]);
 }
 
 pid_t _get_current_pid(){

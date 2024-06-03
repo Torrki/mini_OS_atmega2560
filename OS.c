@@ -2,9 +2,6 @@
 #include "core.h"
 #include "avr_common/uart.h"
 #include <stdio.h>
-#ifdef DEBUG
-#include "scheduler.h"
-#endif
 
 void somma();
 void diff();
