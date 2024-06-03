@@ -4,11 +4,13 @@
 #include "process.h"
 #include "memory.h"
 #include "kernel.h"
+
 #ifdef DEBUG
 #include <stdio.h>
 #endif
 
 #define TRAP_MASK 0x20
+
 uint8_t __id_syscall;
 void* __args_syscall;
 void* __ret_syscall;

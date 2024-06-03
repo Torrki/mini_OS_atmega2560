@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
 
 void somma(){
 	int a=2, b=5;
-	while(1) printf("%d\n", a+b);
+	printf("%d\n", a+b);
 }
 
 void diff(){

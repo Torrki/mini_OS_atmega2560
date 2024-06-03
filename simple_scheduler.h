@@ -3,7 +3,6 @@
 #define CODA -2
 
 #include "process.h"
-#include "kernel.h"
 #include <stdint.h>
 
 struct _simple_scheduler{
@@ -17,13 +16,13 @@ Semplice scheduler basato su arraylist
 };
 
 void _init_scheduler();
-struct process* _add_process_to_scheduler(void* f, pid_t *pid);
+int _add_process_to_scheduler(pid_t *pid);
 int _remove_process_from_scheduler(pid_t pid);
-struct process* _get_current_process();
-struct process* _get_process(pid_t pid);
-struct process* _next_process(pid_t *pid);
+void _next_pid(pid_t *pid);
 pid_t _get_current_pid();
 void _set_current_pid(pid_t pid);
+uint8_t _get_active_process();
+
 #ifdef DEBUG
 void print_scheduler();
 #endif

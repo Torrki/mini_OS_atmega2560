@@ -6,14 +6,10 @@
 #define DIM_PAGE (START_RAM-END_RAM)/NPAGES
 #define N_UNIT_HEAP 24
 #define MIN_HEAP_UNIT (DIM_PAGE-DIM_STACK_PROC)/N_UNIT_HEAP
+
 #include <stdint.h>
 
 typedef int page_t;
-
-struct heap_block{
-	uint8_t size;
-	void* address;
-};
 
 void _init_memory();
 void* _get_page(page_t page);

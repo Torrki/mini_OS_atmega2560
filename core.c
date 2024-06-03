@@ -4,6 +4,7 @@
 #include "kernel.h"
 #include "process.h"
 #include <avr/io.h>
+#include <stdio.h>
 
 extern struct kernel_structure kernel;
 
@@ -15,7 +16,7 @@ void _init_OS(){
 }
 
 void _start_OS(){	
-	struct process* proc0=kernel.get_current_process();
+	struct process* proc0=get_current_process();
 	
 	if(proc0 != (void*)0x00){
 		kernel.last_sp=SP;

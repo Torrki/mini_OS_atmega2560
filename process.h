@@ -1,6 +1,7 @@
 #pragma once
 
 #define PROCESS_H
+#define MAX_PROC 12
 
 #include <stdint.h>
 
