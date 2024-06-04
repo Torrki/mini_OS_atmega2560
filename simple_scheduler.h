@@ -9,10 +9,10 @@ struct _simple_scheduler{
 /*
 Semplice scheduler basato su arraylist
 */
-	pid_t current_pid;
+	pid_t 	current_pid;
 	uint8_t active_process;
-	pid_t start_arraylist;
-	pid_t proc_arraylist[MAX_PROC];		//contiene il PID successivo al PID k-esimo
+	pid_t 	start_arraylist;
+	pid_t 	proc_arraylist[MAX_PROC];		//contiene il PID successivo al PID k-esimo
 };
 
 void _init_scheduler();

@@ -15,19 +15,25 @@
 
 extern struct kernel_structure kernel;
 
+void _context_switch(struct context *old, struct context *new);
+void _first_switch(struct context *old, struct context *new);
+void _end_first_switch(struct context *new);
+void _end_switch(struct context *new);
+
 ISR(TIMER0_COMPA_vect){
 /*Interrupt per il context switch*/
 	_stop_timer_process();
-	pid_t next_pid;
-	struct process *current=get_current_process();
-	struct process *next=next_process(&next_pid);
+	struct process *current=kernel.get_current_process();
+	struct process *next=kernel.next_process();
 	void (*sw)(struct context*, struct context*);
+	
 	current->stato=STOP;
+	kernel.set_current_pid(next->PID);
 	
-	kernel.set_current_pid(next_pid);
-	
-	if(next->stato==CREATED) sw=_first_switch;
-	else sw=_context_switch;	
+	if(next->stato==CREATED){
+		sw=_first_switch;
+	}
+	else sw=_context_switch;
 	
 	next->stato=RUN;
 	_start_timer_process();
@@ -48,16 +54,20 @@ Torna 0 se è stato eseguito correttamente, altrimenti -1.
 		if(res == -1) return -1;
 		
 		uint8_t *sp=START_RAM-(DIM_PAGE*(process_page)+6);
-		kernel.procList[new_pid].func_addr=f;
-		kernel.procList[new_pid].stato=CREATED;
-		kernel.procList[new_pid].page=process_page;
-		kernel.procList[new_pid].contesto.sp=sp;
 		
+		struct process *new_process=&( kernel.procList[new_pid] );
+		new_process->func_addr=f;
+		new_process->stato=CREATED;
+		new_process->page=process_page;
+		new_process->contesto.sp=(uint16_t)sp;
+		new_process->PID=new_pid;
+
 		_lock_page(process_page);
 		
-		uint16_t addr_f=f, addr_end=_end_process;						//scrittura miccia
-		uint8_t bl=addr_f & 0x00ff;													//byte basso
-		uint8_t bh=addr_f>>8;																//byte alto
+		uint16_t addr_f=(uint16_t)f;
+		uint16_t addr_end=(uint16_t)_end_process;
+		uint8_t bl=addr_f & 0x00ff;													//scrittura indirizzo prima istruzione del processo
+		uint8_t bh=addr_f>>8;
 		*(sp+1)=0x00;
 		*(sp+2)=bh;
 		*(sp+3)=bl;
@@ -76,14 +86,16 @@ int _delete_process(pid_t pid){
 Funzione che elimina un processo e lo rimuove dallo scheduler.
 Torna 0 se corretto, altrimenti -1.
 */
-	struct process *p=get_process(pid);
+	struct process* p=kernel.get_process(pid);
 	_unlock_page(p->page);
 	if(kernel.remove_process_from_scheduler(pid)==-1) return -1;
 	
-	kernel.procList[pid].func_addr=(void*)0x00;
-	kernel.procList[pid].stato=FINISH;
-	kernel.procList[pid].page=0;
-	kernel.procList[pid].contesto.sp=0;
+	p->func_addr=(void*)0x00;
+	p->stato=FINISH;
+	p->page=0;
+	p->contesto.sp=0;
+	p->PID=-1;
+	
 	return 0;
 }
 
@@ -92,14 +104,16 @@ void _end_process(){
 	cli();
 	_stop_timer_process();
 	_reset_timer_process();
-	pid_t cpid=kernel.get_current_pid(), next_pid;
-	struct process *next=next_process(&next_pid);
+	pid_t cpid=kernel.get_current_pid();
+	struct process *next=kernel.next_process();
 	void (*sw)(struct context*);
 	
 	_delete_process(cpid);
 	
-	kernel.set_current_pid(next_pid);
-	if(next->stato==CREATED) sw=_end_first_switch;
+	kernel.set_current_pid(next->PID);
+	if(next->stato==CREATED){
+		sw=_end_first_switch;
+	}
 	else sw=_end_switch;	
 	next->stato=RUN;
 	
@@ -107,6 +121,16 @@ void _end_process(){
 		_start_timer_process();
 		
 	sw(&(next->contesto));
+}
+
+int _sleep_process(pid_t pid){
+	struct process* p= kernel.get_process(pid);
+	if(p != (struct process*)0x00){
+		p->stato=SLEEP;
+		kernel.sleepProcess[pid]=p;
+		kernel.remove_process_from_scheduler(pid);
+		return 0;
+	}else return -1;
 }
 
 void _init_timer_process(){

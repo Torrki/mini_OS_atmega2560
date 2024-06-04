@@ -10,7 +10,7 @@ uint16_t lockbits;
 void _init_memory(){
 	lockbits=0x0003;	//blocco le pagine per il kernel
 	for(uint8_t i=0; i<NPAGES; i++){
-		memoria[i]=START_RAM-DIM_PAGE*i;
+		memoria[i]=(void*)(START_RAM-DIM_PAGE*i);
 	}
 }
 
@@ -44,7 +44,7 @@ void print_lockbits(){
 }
 void print_memory(){
 	for(uint8_t i=0; i<NPAGES; i++){
-		printf("%hu: %X\n", i, memoria[i]);
+		printf("%hu: %04X\n", i, memoria[i]);
 	}
 }
 #endif

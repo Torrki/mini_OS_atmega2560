@@ -16,12 +16,15 @@ void _init_OS(){
 }
 
 void _start_OS(){	
-	struct process* proc0=get_current_process();
+	struct process* proc0=kernel.get_process(0);
 	
-	if(proc0 != (void*)0x00){
+	if(proc0 != (struct process*)0x00){
+		proc0->stato=RUN;
 		kernel.last_sp=SP;
+				
 		SP=proc0->contesto.sp;
 		_start_timer_process();
+		asm("ret");
 	}
 }
 

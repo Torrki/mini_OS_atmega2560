@@ -27,12 +27,16 @@ int main(int argc, char *argv[]){
 
 void somma(){
 	int a=2, b=5;
-	printf("%d\n", a+b);
+	while(1) printf("%d\n", a+b);
 }
 
 void diff(){
 	int a=2, b=5;
 	printf("%d\n", a-b);
+	
+	int8_t pid=0;
+	void* args[]={&pid};
+	_syscall(SLEEP_PROCESS, args, (void*)0x00);
 }
 
 void mul(){
