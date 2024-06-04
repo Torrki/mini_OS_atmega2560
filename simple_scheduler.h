@@ -16,7 +16,7 @@ Semplice scheduler basato su arraylist
 };
 
 void _init_scheduler();
-int _add_process_to_scheduler(pid_t *pid);
+int _add_process_to_scheduler(pid_t pid);
 int _remove_process_from_scheduler(pid_t pid);
 void _next_pid(pid_t *pid);
 pid_t _get_current_pid();

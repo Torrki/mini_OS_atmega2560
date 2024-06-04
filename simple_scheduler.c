@@ -12,32 +12,24 @@ void _init_scheduler(){
 	for(uint8_t i=0; i<MAX_PROC; i++) s.proc_arraylist[i]=BAD_ALLOC;
 }
 
-int _add_process_to_scheduler(pid_t *pid){
+int _add_process_to_scheduler(pid_t pid){
 /*
 Aggiunge un nuovo PID nello scheduler s.
 Torna 0 se corretto, altrimenti -1.
 */
-	pid_t new_pid;
 	if(s.start_arraylist==CODA){ //se non è presente la testa
-		new_pid=0;
-		s.start_arraylist=0;
-		s.current_pid=0;
-		s.proc_arraylist[0]=CODA;
+		s.start_arraylist=pid;
+		s.current_pid=pid;
+		s.proc_arraylist[pid]=CODA;
 	}else{
-		//trovo il primo slot libero
-		pid_t i=0;
-		while(i<MAX_PROC && s.proc_arraylist[i] != BAD_ALLOC) i++;
-		if(i==MAX_PROC) return -1;
-		
 		//arrivo alla coda
 		pid_t k=s.start_arraylist;
 		while(s.proc_arraylist[k] != CODA) k=s.proc_arraylist[k];
-		s.proc_arraylist[k]=i;
-		s.proc_arraylist[i]=CODA;
-		new_pid=i;
+		
+		s.proc_arraylist[k]=pid;
+		s.proc_arraylist[pid]=CODA;
 	}
 	
-	*pid=new_pid;
 	s.active_process++;
 	return 0;
 }
@@ -92,10 +84,10 @@ void print_scheduler(){
 	if(k==CODA) printf("Lista vuota\n");
 	else{
 		while(s.proc_arraylist[k] != CODA){
-			printf("elem: %hu\n", k);
+			printf("elem: %hd\n", k);
 			k=s.proc_arraylist[k];
 		}
-		printf("elem: %hu\n", k);
+		printf("elem: %hd\n", k);
 	}
 }
 #endif

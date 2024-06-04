@@ -6,6 +6,7 @@
 void somma();
 void diff();
 void mul();
+void pow();
 
 int main(int argc, char *argv[]){
 	_init_OS();
@@ -18,11 +19,21 @@ int main(int argc, char *argv[]){
 	_syscall(CREATE_PROCESS, args, (void*)0x00);
 	args[0]=&mul;
 	_syscall(CREATE_PROCESS, args, (void*)0x00);
-	args[0]=&somma;
+	args[0]=&pow;
 	_syscall(CREATE_PROCESS, args, (void*)0x00);
 	
 	_start_OS();
 	return 0;
+}
+
+void pow(){
+	int a=2, b=5, potenza=1;
+	for(int i=0; i<b; i++) potenza *= a;
+	
+	int8_t pid=0;
+	void* args[]={&pid};
+	_syscall(WAKE_PROCESS, args, (void*)0x00);
+	while(1) printf("%d\n", potenza);
 }
 
 void somma(){

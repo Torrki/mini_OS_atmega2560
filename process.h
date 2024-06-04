@@ -35,5 +35,6 @@ void _reset_timer_process();
 int _create_process(void* f);
 int _delete_process(pid_t pid);
 int _sleep_process(pid_t pid);
+int _wake_process(pid_t pid);
 void _end_process();
 

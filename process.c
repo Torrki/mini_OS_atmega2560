@@ -50,7 +50,10 @@ Torna 0 se è stato eseguito correttamente, altrimenti -1.
 	_request_page(&process_page); //creo il processo solo se ho le pagine disponibili
 	
 	if(process_page > -1){
-		int res=kernel.add_process_to_scheduler(&new_pid);
+		pid_t new_pid;
+		for(; new_pid<MAX_PROC && kernel.procList[new_pid].func_addr ; new_pid++); //trovo il primo PID libero
+		
+		int res=kernel.add_process_to_scheduler(new_pid);
 		if(res == -1) return -1;
 		
 		uint8_t *sp=START_RAM-(DIM_PAGE*(process_page)+6);
@@ -129,6 +132,17 @@ int _sleep_process(pid_t pid){
 		p->stato=SLEEP;
 		kernel.sleepProcess[pid]=p;
 		kernel.remove_process_from_scheduler(pid);
+		return 0;
+	}else return -1;
+}
+
+int _wake_process(pid_t pid){
+	struct process* p= kernel.get_process(pid);
+	
+	if(p != (struct process*)0x00 && p->stato==SLEEP){
+		p->stato=STOP;
+		kernel.sleepProcess[pid]=(struct process*)0x00;
+		kernel.add_process_to_scheduler(pid);
 		return 0;
 	}else return -1;
 }

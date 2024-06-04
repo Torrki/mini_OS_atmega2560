@@ -32,6 +32,10 @@ ISR(INT5_vect){
 		pid_t* pid= __args_syscall[0];
 		_sleep_process(*pid);
 	}
+	else if((__id_syscall & ~WAKE_PROCESS)==0){
+		pid_t* pid= __args_syscall[0];
+		_wake_process(*pid);
+	}
 }
 
 void _init_syscall(){	
