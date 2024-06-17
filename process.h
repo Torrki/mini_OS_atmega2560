@@ -25,6 +25,8 @@ struct process{
 	uint8_t 	page;
 	struct 		context contesto;
 	pid_t 		PID;
+	void* free_list;
+	uint32_t heap;	
 };
 
 void _init_timer_process();
@@ -37,4 +39,7 @@ int _delete_process(pid_t pid);
 int _sleep_process(pid_t pid);
 int _wake_process(pid_t pid);
 void _end_process();
+
+void* _malloc(uint16_t size);
+int _free(void* address);
 

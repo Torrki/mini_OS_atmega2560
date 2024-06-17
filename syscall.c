@@ -68,3 +68,10 @@ void _syscall(uint8_t id, void** args, void* ret){
 	SP_CALLING_PROCESS=(uint16_t)0x00;
 }
 
+void* my_malloc(uint16_t size){
+	return _malloc(size);
+}
+
+int my_free(void* address){
+	return _free(address);
+}

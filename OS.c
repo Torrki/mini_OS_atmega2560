@@ -27,31 +27,24 @@ int main(int argc, char *argv[]){
 }
 
 void pow(){
-	int a=2, b=5, potenza=1;
-	for(int i=0; i<b; i++) potenza *= a;
-	
-	int8_t pid=0;
-	void* args[]={&pid};
-	_syscall(WAKE_PROCESS, args, (void*)0x00);
-	while(1) printf("%d\n", potenza);
+	void* m1=my_malloc(20);
+	void* m2=my_malloc(27);
+	my_free(m1);
+	my_free(m2);
+	while(1) printf("%d\n", 32);
 }
 
 void somma(){
 	int a=2, b=5;
-	while(1) printf("%d\n", a+b);
+	printf("malloc: %02X\n", my_malloc(10));
+	while(1) printf("%d\n", 2+5);
 }
 
 void diff(){
-	int a=2, b=5;
-	printf("%d\n", a-b);
-	
-	int8_t pid=0;
-	void* args[]={&pid};
-	_syscall(SLEEP_PROCESS, args, (void*)0x00);
+	printf("malloc: %02X\n", my_malloc(30));
 }
 
 void mul(){
-	int a=2, b=5;
-	while(1) printf("%d\n", a*b);
+	while(1) printf("%d\n", 2*5);
 }
 

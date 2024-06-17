@@ -46,17 +46,16 @@ Funzione che crea un nuovo processo in memoria e lo inizializza per il context s
 Torna 0 se è stato eseguito correttamente, altrimenti -1.
 */
 	page_t process_page;
-	pid_t new_pid=0;	
 	_request_page(&process_page); //creo il processo solo se ho le pagine disponibili
 	
 	if(process_page > -1){
-		pid_t new_pid;
+		pid_t new_pid=0;
 		for(; new_pid<MAX_PROC && kernel.procList[new_pid].func_addr ; new_pid++); //trovo il primo PID libero
 		
 		int res=kernel.add_process_to_scheduler(new_pid);
 		if(res == -1) return -1;
 		
-		uint8_t *sp=START_RAM-(DIM_PAGE*(process_page)+6);
+		uint8_t *sp=(uint8_t*)(_get_page(process_page)+6);
 		
 		struct process *new_process=&( kernel.procList[new_pid] );
 		new_process->func_addr=f;
@@ -64,6 +63,8 @@ Torna 0 se è stato eseguito correttamente, altrimenti -1.
 		new_process->page=process_page;
 		new_process->contesto.sp=(uint16_t)sp;
 		new_process->PID=new_pid;
+		new_process->heap=(uint32_t)0;
+		new_process->free_list=0x00;
 
 		_lock_page(process_page);
 		
@@ -166,5 +167,71 @@ void _stop_timer_process(){
 
 void _reset_timer_process(){
 	TCNT0=0x00;
+}
+
+void* _malloc(uint16_t size){
+	struct process *current=kernel.get_current_process();
+	uint32_t tmp=current->heap;
+	float nblocchi_f=(float)(size+sizeof(heap_block)) / (float)DIM_BLOCCHI_HEAP;
+	uint8_t nblocchi= (size+sizeof(heap_block)) / (uint16_t)DIM_BLOCCHI_HEAP, k=0, cont=0;
+	nblocchi = ( nblocchi_f - nblocchi ) > 0 ? nblocchi+1 : nblocchi;
+	
+	while(tmp > 0 && cont < N_BLOCCHI_HEAP){
+		while(tmp & (uint32_t)1){
+			tmp >>= 1;
+			cont++;
+		}
+		for(k=1; k < nblocchi; k++)
+			if( (tmp >> k) & (uint32_t)1) break;
+			
+		if(k==nblocchi) break;
+	}
+	
+	if(cont==N_BLOCCHI_HEAP) return (void*)0x00;
+	
+	for(k=0; k < nblocchi; k++)
+		current->heap |= (uint32_t)1<<(cont+k);
+		
+	void* address=START_HEAP(current->page) + (cont*DIM_BLOCCHI_HEAP);
+	heap_block* tmp_address=address;
+	tmp_address->size=nblocchi*DIM_BLOCCHI_HEAP;
+	tmp_address->next=0x00;
+	
+	if(current->free_list == (void*)0x00){
+		current->free_list=address;
+	}else{
+		tmp_address=current->free_list;
+		while(tmp_address->next != (heap_block*)0x00) tmp_address=tmp_address->next;
+		tmp_address->next=(heap_block*)address;
+	}
+	
+	return (void*)(address+sizeof(heap_block));
+}
+
+int _free(void* address){
+	address -= sizeof(heap_block);
+	
+	struct process *current=kernel.get_current_process();
+	heap_block* tmp_address=current->free_list;
+	
+	if(tmp_address==(heap_block*)address){
+		current->free_list=tmp_address->next;
+	}else{
+		while(tmp_address != (heap_block*)0x00 && tmp_address->next != address){
+			tmp_address=tmp_address->next;
+		}
+		
+		if(tmp_address==(heap_block*)0x00) return -1;
+	
+		tmp_address->next = ((heap_block*)address)->next;
+	}
+	uint16_t k=(uint16_t)(address-START_HEAP(current->page))/(uint16_t)DIM_BLOCCHI_HEAP;
+	tmp_address=(heap_block*)address;
+	uint8_t nblocchi=tmp_address->size/DIM_BLOCCHI_HEAP;
+	
+	for(uint8_t j=0; j<nblocchi; j++)
+		current->heap &= ~( (uint32_t)1<<(k+j));
+		
+	return 0;
 }
 
