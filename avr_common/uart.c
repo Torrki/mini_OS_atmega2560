@@ -27,6 +27,7 @@ static FILE mystdout = FDEV_SETUP_STREAM(usart_putchar_printf, NULL, _FDEV_SETUP
 // ********************************************************************************
 // usart Related
 // ********************************************************************************
+
 void usart_init( uint16_t ubrr) {
     // Set baud rate
     UBRR0H = (uint8_t)(ubrr>>8);

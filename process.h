@@ -1,45 +1,26 @@
 #pragma once
 
-#define PROCESS_H
-#define MAX_PROC 12
+#include "OS_types.h"
 
-#include <stdint.h>
-
-enum _stato_processo{
+enum stato_processo{
 	RUN=0,
 	STOP,
-	FINISH,
 	CREATED,
 	SLEEP
 };
 
-typedef int8_t pid_t;
-
-struct context{
+typedef struct _process_context{
 	uint16_t sp;
-};
+} PContext;
 
-struct process{
-	void* 		func_addr;
-	uint8_t 	stato;
-	uint8_t 	page;
-	struct 		context contesto;
-	pid_t 		PID;
-	void* free_list;
-	uint32_t heap;	
-};
+typedef struct _process_structure{
+	uint16_t		func_addr;
+	pid_t				PID;
+	page_t			page;
+	uint8_t			stato;
+	PContext		contesto;
+} Process;
 
-void _init_timer_process();
-void _start_timer_process();
-void _stop_timer_process();
-void _reset_timer_process();
-
-int _create_process(void* f);
-int _delete_process(pid_t pid);
-int _sleep_process(pid_t pid);
-int _wake_process(pid_t pid);
-void _end_process();
-
-void* _malloc(uint16_t size);
-int _free(void* address);
-
+#ifdef DEBUG
+void printProcess(Process p);
+#endif
