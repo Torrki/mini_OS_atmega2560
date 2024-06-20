@@ -32,7 +32,7 @@ char bufferRX[MAX_PROC];
 
 ISR(USART0_TX_vect){
 	pid_t procTX=kernel.startTX;
-	if(procTX != CODA){
+	if(procTX != CODA && kernel.ProcList[procTX].PID != -1){
 		_wake_process(procTX);
 		kernel.startTX=kernel.arrayListTX[procTX];
 		kernel.arrayListTX[procTX]=BAD_ALLOC;
@@ -41,7 +41,7 @@ ISR(USART0_TX_vect){
 
 ISR(USART0_RX_vect){
 	pid_t procRX=kernel.startRX;
-	if(procRX != CODA){
+	if(procRX != CODA && kernel.ProcList[procRX].PID != -1){
 		_wake_process(procRX);
 		kernel.startRX=kernel.arrayListRX[procRX];
 		kernel.arrayListRX[procRX]=BAD_ALLOC;
@@ -109,7 +109,7 @@ void putChar(char c){
 			kernel.arrayListTX[cp]=CODA;
 		}
 		//printf("sleep: %hd\n", cp);
-		_sleep(cp);
+		sleep(cp);
 	}
 	UDR0 = c;
 }
@@ -129,7 +129,7 @@ char getChar(){
 			kernel.arrayListRX[cp]=CODA;
 		}
 		//printf("sleep: %hd\n", cp);
-		_sleep(cp);
+		sleep(cp);
 		return bufferRX[cp];
 	}
 	else return UDR0;

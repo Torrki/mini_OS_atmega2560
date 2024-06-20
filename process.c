@@ -115,7 +115,16 @@ void	_end_process(){
 	sw(&(next->contesto));
 }
 
-int		_sleep(pid_t p){
+int		_sleep_process(pid_t pid){
+	Process* p=_get_process(pid);
+	if(p->PID != -1){
+		p->stato=SLEEP;
+		_remove_pid_from_scheduler(pid);
+		return 0;
+	}else return -1;
+}
+
+int		sleep(pid_t p){
 	if(p==_get_current_pid()){		//se metto a dormire me stesso
 		_stop_timer_process();
 		_reset_timer_process();
@@ -143,20 +152,17 @@ int		_sleep(pid_t p){
 		_start_timer_process();
 		
 		cw(&(current->contesto), &(next->contesto));
-	}else{
-		//chiamata syscall _sleep_process
-	}
-	
-	return 0;
+		return 0;
+	}else return -1;
 }
 
-int		_wake_process(pid_t p){
-	Process* proc=_get_process(p);
+int		_wake_process(pid_t pid){
+	Process* proc=_get_process(pid);
 	
 	if(proc->PID==-1 || proc->stato != SLEEP) return -1;
 	
 	proc->stato=STOP;
-	_add_pid_to_scheduler(p);
+	_add_pid_to_scheduler(pid);
 	return 0;
 }
 

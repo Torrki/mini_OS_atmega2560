@@ -3,6 +3,11 @@
 struct _kernel_structure kernel;
 
 void _init_kernel(){
+	
+	_init_memory();
+	_init_syscall();
+	_init_timer_process();
+	
 	kernel.scheduler.currentPid=-1;
 	kernel.scheduler.startPid=CODA;
 	kernel.startTX=CODA;

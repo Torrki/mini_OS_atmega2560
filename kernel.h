@@ -3,10 +3,12 @@
 #include "memory.h"
 #include "process.h"
 #include "simple_scheduler.h"
+#include "syscall.h"
 
 #define DIM_STACK_KERNEL ( DIM_PAGE*2 )
 
 struct _kernel_structure{
+	uint16_t	last_SP;
 	Process		ProcList[MAX_PROC];
 	arrayListSched	scheduler;
 	pid_t arrayListTX[MAX_PROC];
@@ -17,9 +19,8 @@ struct _kernel_structure{
 int		_create_process(void* f);
 int		_delete_process(pid_t p);
 void	_end_process();
-int		_sleep_process(pid_t p);
-int		_wake_process(pid_t p);
-int		_sleep(pid_t p);
+int		_sleep_process(pid_t pid);	//suppone che un altro processo metta in SLEEP pid
+int		_wake_process(pid_t pid);
 
 void 	_init_timer_process();
 void 	_start_timer_process();
@@ -32,10 +33,8 @@ pid_t	_next_pid();
 void	_set_current_pid(pid_t pid);
 pid_t	_get_current_pid();
 
-char getChar();
-void putChar(char c);
-
 Process* _get_process(pid_t pid);
 
 void _init_kernel();
+void _init_syscall();
 
