@@ -13,10 +13,15 @@
 
 extern struct _kernel_structure kernel;
 
-void _context_switch(PContext *old, PContext *new);
+void _context_switch(PContext *old, PContext *new);		//context switch ordinari
 void _first_switch(PContext *old, PContext *new);
-void _end_first_switch(PContext *new);
+
+void _end_first_switch(PContext *new);	//context switch per la terminazione
 void _end_switch(PContext *new);
+
+void push_regs();
+void pop_regs();
+
 
 ISR(TIMER0_COMPA_vect){
 /*Interrupt per il context switch*/
@@ -55,8 +60,8 @@ int		_create_process(void* f){
 	Process* new_process= _get_process(newPid);
 	_add_pid_to_scheduler(newPid);
 	
-	uint16_t f_addr=(uint16_t)f;
-	uint8_t *sp= START_RAM-(processPage*DIM_PAGE + 3); //lascio i 3 byte per la prima istruzione
+	uint16_t f_addr=(uint16_t)f, end_addr= (uint16_t)&_end_process;
+	uint8_t *sp= START_RAM-(processPage*DIM_PAGE + 6); //lascio i 3 byte per la prima istruzione
 	new_process->func_addr=f_addr;
 	new_process->PID=newPid;
 	new_process->page=processPage;
@@ -66,6 +71,9 @@ int		_create_process(void* f){
 	*(sp+1)=	0x00;
 	*(sp+2)= (f_addr >> 8) & 0x00FF;
 	*(sp+3)=	f_addr & 0x00FF;
+	*(sp+4)=	0x00;
+	*(sp+5)= (end_addr >> 8) & 0x00FF;
+	*(sp+6)=	end_addr & 0x00FF;
 	
 	_lock_page(processPage);
 	
@@ -86,6 +94,25 @@ int		_delete_process(pid_t p){
 	_remove_pid_from_scheduler(p);
 	
 	return 0;
+}
+
+void	_end_process(){
+/*Procedura per la terminazione di un processo*/
+	cli();
+	_stop_timer_process();
+	_reset_timer_process();
+	pid_t cp=_get_current_pid(), np=_next_pid();
+	Process* next=_get_process(np);
+	void (*sw)(PContext*);
+	
+	_delete_process(cp);
+	
+	_set_current_pid(np);
+	if(next->stato==CREATED)	sw=_end_first_switch;
+	else	sw=_end_switch;	
+	next->stato=RUN;
+//	printf("Terminato: %hd\n", cp);
+	sw(&(next->contesto));
 }
 
 int		_sleep(pid_t p){
@@ -114,8 +141,8 @@ int		_sleep(pid_t p){
 		
 		_remove_pid_from_scheduler(p);
 		_start_timer_process();
-		cw(&(current->contesto), &(next->contesto));
 		
+		cw(&(current->contesto), &(next->contesto));
 	}else{
 		//chiamata syscall _sleep_process
 	}

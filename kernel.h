@@ -9,10 +9,14 @@
 struct _kernel_structure{
 	Process		ProcList[MAX_PROC];
 	arrayListSched	scheduler;
+	pid_t arrayListTX[MAX_PROC];
+	pid_t arrayListRX[MAX_PROC];
+	pid_t startTX, startRX;
 };
 
 int		_create_process(void* f);
 int		_delete_process(pid_t p);
+void	_end_process();
 int		_sleep_process(pid_t p);
 int		_wake_process(pid_t p);
 int		_sleep(pid_t p);
@@ -27,6 +31,9 @@ int		_remove_pid_from_scheduler(pid_t pid);
 pid_t	_next_pid();
 void	_set_current_pid(pid_t pid);
 pid_t	_get_current_pid();
+
+char getChar();
+void putChar(char c);
 
 Process* _get_process(pid_t pid);
 
